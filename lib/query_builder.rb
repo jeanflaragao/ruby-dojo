@@ -5,8 +5,8 @@ class QueryBuilder
     @events = events
   end
 
-  def where(&block)
-    QueryBuilder.new(@events.select(&block))
+  def where(&)
+    QueryBuilder.new(@events.select(&))
   end
 
   def order_by(attribute)

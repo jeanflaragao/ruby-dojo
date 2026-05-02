@@ -16,7 +16,8 @@ RSpec.describe EventRepository do
     Event.new(
       name: 'RubyConf 2026',
       description: 'Annual Ruby conference',
-      venue: Venue.new(name: 'San Francisco Convention Center', address: '123 Main St, San Francisco, CA', capacity: 500),
+      venue: Venue.new(name: 'San Francisco Convention Center', address: '123 Main St, San Francisco, CA',
+                       capacity: 500),
       start_time: Time.new(2026, 6, 15, 9, 0, 0),
       end_time: Time.new(2026, 6, 17, 18, 0, 0),
       total_seats: 500
@@ -71,7 +72,7 @@ RSpec.describe EventRepository do
     end
 
     it 'increments the count' do
-      expect { repo.add(event1) }.to change { repo.count }.from(0).to(1)
+      expect { repo.add(event1) }.to change(repo, :count).from(0).to(1)
     end
 
     context 'when adding duplicate events' do
@@ -95,8 +96,8 @@ RSpec.describe EventRepository do
       repo = described_class.new([event1])
       all_events = repo.all
       all_events << event2
-      
-      expect(repo.count).to eq(1)  # Should not be affected
+
+      expect(repo.count).to eq(1) # Should not be affected
     end
   end
 
@@ -185,7 +186,7 @@ RSpec.describe EventRepository do
       # Events starting in July 2026
       start_date = Time.new(2026, 7, 1)
       end_date = Time.new(2026, 7, 31)
-      
+
       results = repo.filter_by_date_range(start_date, end_date)
       expect(results).to contain_exactly(event2)
     end
@@ -194,7 +195,7 @@ RSpec.describe EventRepository do
       # Exact start time of event2
       start_date = Time.new(2026, 7, 10, 9, 0, 0)
       end_date = Time.new(2026, 7, 10, 9, 0, 0)
-      
+
       results = repo.filter_by_date_range(start_date, end_date)
       expect(results).to contain_exactly(event2)
     end
@@ -202,13 +203,15 @@ RSpec.describe EventRepository do
     it 'returns empty array when no events in range' do
       start_date = Time.new(2027, 1, 1)
       end_date = Time.new(2027, 12, 31)
-      
+
       results = repo.filter_by_date_range(start_date, end_date)
       expect(results).to be_empty
     end
   end
 
   describe '#available_events' do
+    subject(:repo) { described_class.new([event1, event2, event3]) }
+
     let(:sold_out_event) do
       event = Event.new(
         name: 'Sold Out Conference',
@@ -223,8 +226,6 @@ RSpec.describe EventRepository do
       # For now, we'll test the concept with available_seats > 0
       event
     end
-
-    subject(:repo) { described_class.new([event1, event2, event3]) }
 
     it 'returns events with available seats' do
       results = repo.available_events
@@ -273,24 +274,24 @@ RSpec.describe EventRepository do
     end
 
     it 'returns Event objects' do
-      result.each do |item|
-        expect(item).to be_a(Event)
-      end
+      expect(result).to all(be_a(Event))
     end
   end
 
   describe '#search_by_name' do
     subject(:repo) { described_class.new([event1]) }
+
     let(:result) { repo.search_by_name('Ruby') }
 
-    include_examples 'returns a collection'
+    it_behaves_like 'returns a collection'
   end
 
   describe '#filter_by_venue' do
     subject(:repo) { described_class.new([event1]) }
+
     let(:result) { repo.filter_by_venue('San Francisco') }
 
-    include_examples 'returns a collection'
+    it_behaves_like 'returns a collection'
   end
 
   # CHAINING OPERATIONS - Real-world usage
@@ -300,12 +301,12 @@ RSpec.describe EventRepository do
     it 'supports method chaining for complex queries' do
       # Find Ruby events in San Francisco, sorted by size
       results = repo
-        .search_by_name('Ruby')
-        .select { |e| e.venue.name.include?('San Francisco') }
-        .sort_by(&:total_seats)
-        .reverse
+                .search_by_name('Ruby')
+                .select { |e| e.venue.name.include?('San Francisco') }
+                .sort_by(&:total_seats)
+                .reverse
 
-      expect(results.first).to eq(event1)  # Largest Ruby event in SF
+      expect(results.first).to eq(event1) # Largest Ruby event in SF
     end
   end
 
@@ -345,10 +346,11 @@ RSpec.describe EventRepository do
       it 'returns the first one' do
         repo.add(event4)
         result = repo.find_by_venue('San Francisco Convention Center')
-        expect(result).to eq(event1)  # First one added
+        expect(result).to eq(event1) # First one added
       end
     end
   end
+
   describe '#filter_by_seat_range' do
     subject(:repo) { described_class.new(events) }
 
@@ -363,10 +365,9 @@ RSpec.describe EventRepository do
       ]
     end
 
-
     it 'filters events within seat range' do
       results = repo.filter_by_seat_range(50, 200)
-      expect(results).to contain_exactly(events[1])  # Medium event
+      expect(results).to contain_exactly(events[1]) # Medium event
     end
 
     it 'includes boundary values' do
@@ -393,7 +394,7 @@ RSpec.describe EventRepository do
         name: 'Past Event',
         description: 'Already happened',
         venue: Venue.new(name: 'Venue', address: 'Address', capacity: 100),
-        start_time: Time.now - 86400,  # Yesterday
+        start_time: Time.now - 86_400,  # Yesterday
         end_time: Time.now - 3600,
         total_seats: 100
       )
@@ -404,8 +405,8 @@ RSpec.describe EventRepository do
         name: 'Future Event',
         description: 'Coming soon',
         venue: Venue.new(name: 'Venue', address: 'Address', capacity: 100),
-        start_time: Time.now + 86400,  # Tomorrow
-        end_time: Time.now + 90000,
+        start_time: Time.now + 86_400,  # Tomorrow
+        end_time: Time.now + 90_000,
         total_seats: 100
       )
     end
@@ -425,14 +426,14 @@ RSpec.describe EventRepository do
         name: 'Next Week',
         description: 'D',
         venue: Venue.new(name: 'Venue', address: 'Address', capacity: 50),
-        start_time: Time.now + 604800,  # 1 week
-        end_time: Time.now + 608400,
+        start_time: Time.now + 604_800, # 1 week
+        end_time: Time.now + 608_400,
         total_seats: 50
       )
 
       repo.add(event_in_week)
       results = repo.upcoming_events
-      expect(results.first).to eq(future_event)  # Tomorrow comes first
+      expect(results.first).to eq(future_event) # Tomorrow comes first
     end
   end
 
@@ -444,7 +445,7 @@ RSpec.describe EventRepository do
         name: 'Past Event',
         description: 'Already happened',
         venue: Venue.new(name: 'SFD', address: 'Address', capacity: 101),
-        start_time: Time.now - 86400,  # Yesterday
+        start_time: Time.now - 86_400,  # Yesterday
         end_time: Time.now - 3600,
         total_seats: 101
       )
@@ -455,16 +456,17 @@ RSpec.describe EventRepository do
         name: 'Future Event',
         description: 'Coming soon',
         venue: Venue.new(name: 'SFD', address: 'Address', capacity: 100),
-        start_time: Time.now + 86400,  # Tomorrow
-        end_time: Time.now + 90000,
+        start_time: Time.now + 86_400,  # Tomorrow
+        end_time: Time.now + 90_000,
         total_seats: 100
       )
     end
+
     it 'supports multiple where clauses' do
       results = repo
-        .where { |e| e.venue.name.include?('SF') }
-        .where { |e| e.total_seats > 100 }
-        .results
+                .where { |e| e.venue.name.include?('SF') }
+                .where { |e| e.total_seats > 100 }
+                .results
 
       expect(results).to all(satisfy { |e| e.venue.name.include?('SF') })
       expect(results).to all(satisfy { |e| e.total_seats > 100 })
@@ -472,23 +474,26 @@ RSpec.describe EventRepository do
 
     it 'supports ordering' do
       results = repo
-        .where { |e| e.available_seats > 0 }
-        .order_by(:start_time)
-        .results
+                .where { |e| e.available_seats > 0 }
+                .order_by(:start_time)
+                .results
 
       expect(results).to eq(results.sort_by(&:start_time))
     end
 
     it 'supports limit' do
       results = repo
-        .where { |e| e.available_seats > 0 }
-        .limit(2)
-        .results
+                .where { |e| e.available_seats > 0 }
+                .limit(2)
+                .results
 
       expect(results.size).to eq(2)
     end
   end
+
   describe '#lazy_search' do
+    subject(:repo) { described_class.new([event1, event2, event3]) }
+
     it 'returns a lazy enumerator' do
       result = repo.lazy_search('Ruby')
       expect(result).to be_a(Enumerator::Lazy)
@@ -501,9 +506,9 @@ RSpec.describe EventRepository do
 
     it 'supports chaining' do
       result = repo
-        .lazy_search('Ruby')
-        .select { |e| e.total_seats > 100 }
-        .first(3)
+               .lazy_search('Ruby')
+               .select { |e| e.total_seats > 100 }
+               .first(3)
 
       expect(result.size).to be <= 3
     end

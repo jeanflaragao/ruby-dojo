@@ -14,7 +14,10 @@
 #
 # FUTURE: This in-memory implementation will be replaced with
 # ActiveRecord (PostgreSQL) on Day 8, but the interface stays the same!
+require_relative 'searchable'
 class EventRepository
+  include Searchable
+
   # WHY attr_reader? Expose count, but not direct array access
   # Users must go through our methods (encapsulation)
   attr_reader :count
@@ -123,8 +126,8 @@ class EventRepository
   #
   # NOTE: This is advanced - not tested yet, but shows the power of blocks
 
-  def where(&block)
-    QueryBuilder.new(@events.select(&block))
+  def where(&)
+    QueryBuilder.new(@events.select(&))
   end
 
   def find_by_venue(venue_name)
@@ -140,38 +143,18 @@ class EventRepository
     @events.select { |event| event.start_time > now }
   end
 
-end
+  def lazy_search(query)
+    return @events.dup if query.empty?
 
-# ============================================================================
-# RUBY CONCEPTS EXPLAINED IN THIS CLASS
-# ============================================================================
-#
-# 1. BLOCKS AND CLOSURES
-#    Every method with { |param| ... } uses a block
-#    Blocks are closures - they capture variables from outer scope
-#
-# 2. ENUMERABLE MODULE
-#    Arrays include Enumerable, giving us: map, select, find, sort_by, etc.
-#    These are Ruby's functional programming tools
-#
-# 3. SYMBOL-TO-PROC (&:method_name)
-#    &:start_time is shorthand for { |event| event.start_time }
-#    Works because Symbol#to_proc converts symbol to a callable proc
-#
-#    How it works:
-#    :start_time.to_proc  # => returns a proc
-#    Which is equivalent to: Proc.new { |obj| obj.send(:start_time) }
-#
-# 4. DEFENSIVE COPYING
-#    .dup creates a shallow copy of the array
-#    Prevents external code from mutating our internal state
-#
-# 5. IMPLICIT RETURN
-#    Ruby returns the last expression in a method
-#    No 'return' keyword needed (though you can use it for early returns)
-#
-# 6. QUERY PATTERN
-#    Methods that filter/search return Arrays, allowing chaining:
-#    repo.search_by_name('Ruby').select { |e| e.seats > 100 }
-#
-# ============================================================================
+    query_lower = query.downcase
+    @events.lazy.select { |event| event.name.downcase.include?(query_lower) }
+  end
+
+  def all_active
+    @events.reject(&:deleted?)
+  end
+
+  def all_deleted
+    @events.select(&:deleted?)
+  end
+end

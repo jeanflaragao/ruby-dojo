@@ -413,7 +413,7 @@ RSpec.describe Event do
       it 'raises an error' do
         expect { event.reserve_seats(0) }.to raise_error(
           ArgumentError,
-          /must reserve at least 1 seat/
+          /seat count must be positive/
         )
       end
     end
@@ -422,8 +422,181 @@ RSpec.describe Event do
       it 'raises an error' do
         expect { event.reserve_seats(-5) }.to raise_error(
           ArgumentError,
-          /must reserve at least 1 seat/
+          /seat count must be positive/
         )
+      end
+    end
+  end
+
+  describe 'Comparable' do
+    let(:early_event) do
+      described_class.new(
+        name: 'Early Event',
+        start_time: Time.new(2026, 6, 1),
+        description: 'Description',
+        venue: Venue.new(
+          name: 'Early Event Venue',
+          address: '123 Main St',
+          capacity: 1000
+        ),
+        end_time: Time.new(2026, 6, 2),
+        total_seats: 1000
+      )
+    end
+
+    let(:late_event) do
+      described_class.new(
+        name: 'Late Event',
+        start_time: Time.new(2026, 12, 1),
+        description: 'Late Event',
+        venue: Venue.new(
+          name: 'Late Event Venue',
+          address: '123 Main St',
+          capacity: 1000
+        ),
+        end_time: Time.new(2026, 12, 2),
+        total_seats: 1000
+      )
+    end
+
+    it 'compares events by start time' do
+      expect(early_event < late_event).to be true
+      expect(late_event > early_event).to be true
+    end
+
+    it 'sorts events by start time' do
+      events = [late_event, early_event]
+      sorted = events.sort
+
+      expect(sorted.first).to eq(early_event)
+    end
+
+    it 'checks if event is between two dates' do
+      middle_event = described_class.new(
+        name: 'Middle',
+        start_time: Time.new(2026, 9, 1),
+        description: 'Middle Event',
+        venue: Venue.new(
+          name: 'Middle Event Venue',
+          address: '123 Main St',
+          capacity: 1000
+        ),
+        end_time: Time.new(2026, 9, 2),
+        total_seats: 1000
+      )
+
+      expect(middle_event.between?(early_event, late_event)).to be true
+    end
+  end
+
+  describe Loggable do
+    let(:test_class) do
+      Class.new do
+        prepend Loggable
+
+        def save
+          'saved'
+        end
+      end
+    end
+
+    it 'logs before and after method' do
+      obj = test_class.new
+
+      expect { obj.save }.to output(/Saving/).to_stdout
+      expect { obj.save }.to output(/Saved.*successfully/).to_stdout
+    end
+
+    it 'returns original method result' do
+      obj = test_class.new
+      expect(obj.save).to eq('saved')
+    end
+  end
+
+  describe SoftDeletable do
+    let(:event) do
+      Event.new(
+        name: 'Test',
+        description: 'Test Event',
+        venue: Venue.new(name: 'Test Venue', address: '123 Main St', capacity: 100),
+        start_time: Time.new(2026, 6, 1),
+        end_time: Time.new(2026, 6, 2),
+        total_seats: 100
+      )
+    end
+
+    it 'marks record as deleted' do
+      event.delete
+      expect(event.deleted?).to be true
+      expect(event.deleted_at).to be_a(Time)
+    end
+
+    it 'can be restored' do
+      event.delete
+      event.restore
+      expect(event.deleted?).to be false
+      expect(event.deleted_at).to be_nil
+    end
+
+    it 'filters deleted records from repository' do
+      event1 = Event.new(
+        name: 'Active',
+        description: 'Active Event',
+        venue: Venue.new(name: 'Active Venue', address: '123 Main St', capacity: 100),
+        start_time: Time.new(2026, 6, 1),
+        end_time: Time.new(2026, 6, 2),
+        total_seats: 100
+      )
+      event2 = Event.new(
+        name: 'Deleted',
+        description: 'Deleted Event',
+        venue: Venue.new(name: 'Deleted Venue', address: '123 Main St', capacity: 100),
+        start_time: Time.new(2026, 6, 1),
+        end_time: Time.new(2026, 6, 2),
+        total_seats: 100
+      )
+      event2.delete
+
+      repo = EventRepository.new([event1, event2])
+      expect(repo.all_active).to contain_exactly(event1)
+      expect(repo.all_deleted).to contain_exactly(event2)
+    end
+  end
+
+  describe Serializable do
+    let(:event) do
+      Event.new(
+        name: 'RubyConf',
+        description: 'Conference',
+        venue: Venue.new(name: 'RubyConf Venue', address: '123 Main St', capacity: 1000),
+        start_time: Time.new(2026, 6, 1),
+        end_time: Time.new(2026, 6, 2),
+        total_seats: 1000
+      )
+    end
+
+    describe '#to_json' do
+      it 'serializes to JSON' do
+        json = event.to_json
+        parsed = JSON.parse(json)
+
+        expect(parsed['name']).to eq('RubyConf')
+      end
+
+      it 'converts Time to ISO8601' do
+        json = event.to_json
+        parsed = JSON.parse(json)
+
+        expect(parsed['start_time']).to match(/\d{4}-\d{2}-\d{2}T/)
+      end
+    end
+
+    describe '.from_json' do
+      it 'deserializes from JSON' do
+        json = event.to_json
+        restored = Event.from_json(json)
+
+        expect(restored.venue.name).to eq(event.venue.name)
       end
     end
   end

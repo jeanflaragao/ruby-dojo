@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
+require_relative 'serializable'
 class Venue
+  include Serializable
+
+  serializable_attributes :name, :address, :capacity
+
   attr_reader :name, :address, :capacity
 
   def initialize(name:, address:, capacity:)

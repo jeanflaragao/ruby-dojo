@@ -1,34 +1,35 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe EventCollection do
   subject(:collection) { described_class.new([event1, event2]) }
 
-  let(:event1) { 
+  let(:event1) do
     Event.new(
-        name: 'Event 1',
-        description: 'Already happened',
-        venue: Venue.new(name: 'Venue', address: 'Address', capacity: 101),
-        start_time: Time.now - 86400,  # Yesterday
-        end_time: Time.now - 3600,
-        total_seats: 101
-      )
-  }
+      name: 'Event 1',
+      description: 'Already happened',
+      venue: Venue.new(name: 'Venue', address: 'Address', capacity: 101),
+      start_time: Time.now - 86_400,  # Yesterday
+      end_time: Time.now - 3600,
+      total_seats: 101
+    )
+  end
 
-  let(:event2) { 
+  let(:event2) do
     Event.new(
-        name: 'Event 2',
-        description: 'Will happen',
-        venue: Venue.new(name: 'Venue', address: 'Address', capacity: 200),
-        start_time: Time.now + 86400,  # Tomorrow
-        end_time: Time.now + 90000,
-        total_seats: 200
-      )
-  }
+      name: 'Event 2',
+      description: 'Will happen',
+      venue: Venue.new(name: 'Venue', address: 'Address', capacity: 200),
+      start_time: Time.now + 86_400,  # Tomorrow
+      end_time: Time.now + 90_000,
+      total_seats: 200
+    )
+  end
 
   describe 'Enumerable methods' do
     it 'implements each' do
-      names = []
-      collection.each { |e| names << e.name }
+      names = collection.map(&:name)
       expect(names).to eq([event1.name, event2.name])
     end
 
