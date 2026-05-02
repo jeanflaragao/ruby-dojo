@@ -1,0 +1,45 @@
+# Change 'require:' to 'plugins:' to fix the deprecation warning
+plugins:
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.3
+  NewCops: enable
+  Exclude:
+    - "vendor/**/*"
+
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+# Make this ignore keyword arguments!
+# Keyword args (name:, description:) are highly readable, so having 6 of them is perfectly fine.
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*"
+
+Metrics/MethodLength:
+  Max: 15
+
+Layout/LineLength:
+  Max: 120
+
+# 10 lines is very strict for TDD where you need setup/arrange/act/assert. Let's bump it to 15.
+RSpec/ExampleLength:
+  Max: 15
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+# 3 levels of nesting is easy to hit with `describe` -> `context` -> `context`.
+RSpec/NestedGroups:
+  Max: 4
+
+# This triggers if you have more than 5 `let` statements. Let's give you a bit more room.
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
