@@ -4,9 +4,24 @@ A hands-on Ruby learning workshop focused on object-oriented programming, TDD, a
 
 ## Topics Covered
 
-- **Day 1** — Ruby basics, OOP (classes, attributes, validation), and TDD with RSpec
-- **Day 2** — Collections, repositories, and enumerable methods
-- **Day 3** — Modules, mixins, and composable design
+- ✅ **Day 1** — Ruby basics, OOP (classes, attributes, validation), and TDD with RSpec
+- ✅ **Day 2** — Collections, repositories, and enumerable methods
+- ✅ **Day 3** — Modules, mixins, and composable design
+- ✅ **Day 4** — Error handling & contract design (Result pattern, exceptions, railway-oriented programming)
+- **Day 5** — Value objects & form objects (Money, DateRange, TicketType, primitive obsession)
+- **Day 6** — **Morning:** Big refactoring (project structure cleanup) | **Afternoon:** Continued development
+- **Day 7** — Database integration (ActiveRecord basics, migrations, associations)
+- **Day 8** — API basics (Serializers, JSON responses, versioning)
+- **Day 9** — Background jobs (Sidekiq, async processing, email notifications)
+- **Day 10** — Integration testing & deployment prep
+
+**Future Topics:**
+
+- Microservices architecture
+- Docker Compose multi-service setup
+- Kubernetes basics
+- Message queues (RabbitMQ/Kafka)
+- Service discovery & API Gateway patterns
 
 ## Project Structure
 
