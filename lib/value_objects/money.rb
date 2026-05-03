@@ -11,7 +11,7 @@ class Money
 
   def initialize(amount, currency = 'USD')
     raise ArgumentError, 'Amount cannot be nil' if amount.nil?
-    raise ArgumentError, 'Amount must be positive' unless amount.positive?
+    raise ArgumentError, 'Amount must be non-negative' unless amount >= 0
 
     @amount = amount
     @currency = currency

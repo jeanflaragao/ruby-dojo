@@ -17,7 +17,7 @@ RSpec.describe Money do
     end
 
     it 'raises error for negative amounts' do
-      expect { described_class.new(-100, 'USD') }.to raise_error(ArgumentError, /positive/)
+      expect { described_class.new(-100, 'USD') }.to raise_error(ArgumentError, /non-negative/)
     end
 
     it 'raises error for nil amount' do
