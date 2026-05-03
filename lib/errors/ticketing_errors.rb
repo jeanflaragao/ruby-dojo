@@ -66,7 +66,7 @@ class InsufficientSeatsError < BookingError
   def initialize(available, requested, event_name: nil)
     @available = available
     @requested = requested
-    
+
     message = "Only #{available} seats available, but #{requested} requested"
     message += " for #{event_name}" if event_name
 

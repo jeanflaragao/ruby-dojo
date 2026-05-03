@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe BookingService do
   subject(:service) { described_class.new(repository) }
-  
+
   # Create test data
   let(:venue) do
     Venue.new(
@@ -34,7 +34,7 @@ RSpec.describe BookingService do
       end_time: Time.new(2026, 7, 1, 17, 0, 0),
       total_seats: 10
     )
-    event.reserve_seats(10)  # Reserve all seats
+    event.reserve_seats(10) # Reserve all seats
     event
   end
 
@@ -54,7 +54,7 @@ RSpec.describe BookingService do
 
         expect(booking.event).to eq(event)
         expect(booking.seats_reserved).to eq(5)
-        expect(booking.total_price).to eq(250.0)  # 5 * $50
+        expect(booking.total_price).to eq(250.0) # 5 * $50
         expect(booking.booking_id).to match(/BOOK-/)
         expect(booking.timestamp).to be_a(Time)
       end
@@ -141,7 +141,7 @@ RSpec.describe BookingService do
 
     context 'when insufficient seats available' do
       it 'returns Failure' do
-        result = service.book('RubyConf 2026', 150)  # More than 100 available
+        result = service.book('RubyConf 2026', 150) # More than 100 available
 
         expect(result).to be_failure
         expect(result.error).to include('Only')
@@ -179,8 +179,8 @@ RSpec.describe BookingService do
         failure_executed = false
 
         service.book('RubyConf 2026', 5)
-          .on_success { |_booking| success_executed = true }
-          .on_failure { |_error| failure_executed = true }
+               .on_success { |_booking| success_executed = true }
+               .on_failure { |_error| failure_executed = true }
 
         expect(success_executed).to be true
         expect(failure_executed).to be false
@@ -206,12 +206,10 @@ RSpec.describe BookingService do
       end
 
       it 'error includes event name' do
-        begin
-          service.book!('Missing Event', 5)
-        rescue EventNotFoundError => e
-          expect(e.resource_type).to eq('Event')
-          expect(e.identifier).to match(/Missing Event/)
-        end
+        service.book!('Missing Event', 5)
+      rescue EventNotFoundError => e
+        expect(e.resource_type).to eq('Event')
+        expect(e.identifier).to match(/Missing Event/)
       end
     end
 
@@ -223,11 +221,9 @@ RSpec.describe BookingService do
       end
 
       it 'error includes event name' do
-        begin
-          service.book!('Sold Out Event', 5)
-        rescue EventSoldOutError => e
-          expect(e.event_name).to match(/Sold Out Event/)
-        end
+        service.book!('Sold Out Event', 5)
+      rescue EventSoldOutError => e
+        expect(e.event_name).to match(/Sold Out Event/)
       end
     end
 
@@ -239,12 +235,10 @@ RSpec.describe BookingService do
       end
 
       it 'error includes available and requested counts' do
-        begin
-          service.book!('RubyConf 2026', 150)
-        rescue InsufficientSeatsError => e
-          expect(e.available).to eq(100)
-          expect(e.requested).to eq(150)
-        end
+        service.book!('RubyConf 2026', 150)
+      rescue InsufficientSeatsError => e
+        expect(e.available).to eq(100)
+        expect(e.requested).to eq(150)
       end
     end
 
@@ -258,19 +252,15 @@ RSpec.describe BookingService do
 
     context 'error hierarchy' do
       it 'allows catching all booking errors' do
-        begin
-          service.book!('Sold Out Event', 5)
-        rescue BookingError => e
-          expect(e).to be_a(EventSoldOutError)
-        end
+        service.book!('Sold Out Event', 5)
+      rescue BookingError => e
+        expect(e).to be_a(EventSoldOutError)
       end
 
       it 'allows catching all ticketing errors' do
-        begin
-          service.book!('NonExistent', 5)
-        rescue TicketingError => e
-          expect(e).to be_a(EventNotFoundError)
-        end
+        service.book!('NonExistent', 5)
+      rescue TicketingError => e
+        expect(e).to be_a(EventNotFoundError)
       end
     end
   end
@@ -322,13 +312,13 @@ RSpec.describe BookingService do
         booking = service.book_with_retry('RubyConf 2026', 5)
         expect(booking).to be_a(BookingService::Booking)
       end
-      
+
       it 'does not retry' do
         expect(service).to receive(:book!).once.and_call_original
         service.book_with_retry('RubyConf 2026', 5)
       end
     end
-    
+
     context 'when booking fails transiently' do
       it 'retries up to max_retries times' do
         # Simulate: fail, fail, succeed
@@ -336,28 +326,28 @@ RSpec.describe BookingService do
           .and_raise(InvalidBookingError.new('temporary'))
           .and_raise(InvalidBookingError.new('temporary'))
           .and_return(double(booking_id: 'BOOK-123'))
-        
+
         result = service.book_with_retry('RubyConf 2026', 5, max_retries: 3)
         expect(result.booking_id).to eq('BOOK-123')
       end
     end
-    
+
     context 'when booking fails permanently' do
       it 'does not retry InsufficientSeatsError' do
         allow(service).to receive(:book!)
           .and_raise(InsufficientSeatsError.new(5, 10))
-        
+
         expect do
           service.book_with_retry('RubyConf 2026', 10, max_retries: 3)
         end.to raise_error(InsufficientSeatsError)
       end
     end
-    
+
     context 'when all retries exhausted' do
       it 'raises the last error' do
         allow(service).to receive(:book!)
           .and_raise(InvalidBookingError.new('error'))
-        
+
         expect do
           service.book_with_retry('RubyConf 2026', 5, max_retries: 2)
         end.to raise_error(InvalidBookingError)
@@ -367,25 +357,25 @@ RSpec.describe BookingService do
 
   describe GuestUser do
     subject(:guest) { described_class.new }
-    
+
     it 'has default guest values' do
       expect(guest.name).to eq('Guest')
       expect(guest.email).to eq('guest@example.com')
       expect(guest.role).to eq('guest')
     end
-    
+
     it 'is not an admin' do
       expect(guest.admin?).to be false
     end
-    
+
     it 'is a guest' do
       expect(guest.guest?).to be true
     end
-    
+
     it 'has no discount' do
       expect(guest.discount_percentage).to eq(0)
     end
-    
+
     it 'is polymorphic with User' do
       # Should respond to same methods as User
       expect(guest).to respond_to(:email)
@@ -395,17 +385,17 @@ RSpec.describe BookingService do
     end
   end
 
-describe 'BookingService with users' do
+  describe 'BookingService with users' do
     it 'calculates price for guest user' do
       guest = GuestUser.new
       price = service.calculate_price_for_user(guest, 100.0)
-      expect(price).to eq(100.0)  # No discount
+      expect(price).to eq(100.0) # No discount
     end
-    
+
     it 'calculates price for VIP user' do
       vip = User.new(email: 'vip@example.com', name: 'VIP', role: 'vip')
       price = service.calculate_price_for_user(vip, 100.0)
-      expect(price).to eq(80.0)  # 20% discount
+      expect(price).to eq(80.0) # 20% discount
     end
   end
 end

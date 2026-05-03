@@ -18,7 +18,7 @@
 #
 # USAGE:
 #   result = BookingService.book(event, seats)
-#   
+#
 #   if result.success?
 #     puts "Booked! Confirmation: #{result.value}"
 #   else

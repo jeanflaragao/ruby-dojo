@@ -25,7 +25,6 @@ require_relative 'payment_service'
 # - Provide helpful error messages
 
 class BookingService < PaymentService
-
   # Booking result data structure
   Booking = Struct.new(:event, :seats_reserved, :total_price, :booking_id, :timestamp) do
     def to_h
@@ -75,30 +74,27 @@ class BookingService < PaymentService
   def book!(event_name, requested_seats)
     result = book(event_name, requested_seats)
 
-    if result.success?
-      result.value
-    else
-      # Convert failure to appropriate exception
-      raise exception_from_error(result.error)
-    end
+    raise exception_from_error(result.error) unless result.success?
+
+    result.value
+
+    # Convert failure to appropriate exception
   end
 
   def book_with_retry(event_name, requested_seats, max_retries: 3)
     attempt = 0
-    
+
     begin
       attempt += 1
       book!(event_name, requested_seats)
-    rescue InsufficientSeatsError => e
+    rescue InsufficientSeatsError
       # Don't retry - this is a permanent failure
       raise
-    rescue BookingError => e
-      if attempt < max_retries
-        sleep(0.1 * attempt)  # Exponential backoff
-        retry
-      else
-        raise
-      end
+    rescue BookingError
+      raise unless attempt < max_retries
+
+      sleep(0.1 * attempt) # Exponential backoff
+      retry
     end
   end
 
@@ -109,12 +105,11 @@ class BookingService < PaymentService
   end
 
   def calculate_price_for_user(user, base_price)
-    if user.nil?
-      base_price
-    else
-      discount = user.discount_percentage
-      base_price * (1 - discount / 100.0)
-    end
+    return Result.success(base_price) if user.nil?
+
+    discount = user.discount_percentage
+    discounted = base_price * (1 - (discount / 100.0))
+    Result.success(discounted)
   end
 
   private
@@ -122,9 +117,7 @@ class BookingService < PaymentService
   # Step 1: Validate inputs
   # WHY first? Fail fast on invalid input
   def validate_inputs(event_name, requested_seats)
-    if event_name.nil? || event_name.empty?
-      return Result.failure('Event name is required')
-    end
+    return Result.failure('Event name is required') if event_name.nil? || event_name.empty?
 
     unless requested_seats.is_a?(Integer) && requested_seats.positive?
       return Result.failure('Requested seats must be a positive integer')
@@ -164,13 +157,12 @@ class BookingService < PaymentService
   def reserve_seats(event, requested_seats)
     # This could raise an exception if Event#reserve_seats fails
     # In a real system, this might involve database transactions
-    begin
-      event.reserve_seats(requested_seats)
-      Result.success(event)
-    rescue ArgumentError => e
-      # Convert exception to Result (defensive programming)
-      Result.failure("Reservation failed: #{e.message}")
-    end
+
+    event.reserve_seats(requested_seats)
+    Result.success(event)
+  rescue ArgumentError => e
+    # Convert exception to Result (defensive programming)
+    Result.failure("Reservation failed: #{e.message}")
   end
 
   # Step 5: Create booking record
@@ -190,7 +182,7 @@ class BookingService < PaymentService
   # Helper: Calculate price
   # WHY hardcoded? In real system, this would come from event pricing
   def calculate_price(seats)
-    price_per_seat = 50.0  # $50 per seat
+    price_per_seat = 50.0 # $50 per seat
     seats * price_per_seat
   end
 
@@ -205,11 +197,9 @@ class BookingService < PaymentService
   def exception_from_error(error_message)
     case error_message
     when /not found/
-      event_name = error_message[/'([^']+)'/, 1]
-      EventNotFoundError.new(event_name || 'unknown')
+      EventNotFoundError.new(extract_event_name(error_message))
     when /sold out/
-      event_name = error_message[/'([^']+)'/, 1]
-      EventSoldOutError.new(event_name || 'unknown')
+      EventSoldOutError.new(extract_event_name(error_message))
     when /Only (\d+) seats available/
       available = error_message[/Only (\d+)/, 1].to_i
       requested = error_message[/(\d+) requested/, 1].to_i
@@ -222,7 +212,7 @@ class BookingService < PaymentService
   def charge_payment(booking, payment_method)
     payment_service = PaymentService.new
     payment_result = payment_service.charge(booking.total_price, payment_method)
-    
+
     if payment_result.success?
       Result.success(booking)
     else
@@ -230,6 +220,10 @@ class BookingService < PaymentService
       booking.event.reserve_seats(-booking.seats_reserved)
       Result.failure("Payment failed: #{payment_result.error}")
     end
+  end
+
+  def extract_event_name(message)
+    message[/'([^']+)'/, 1] || 'unknown'
   end
 end
 

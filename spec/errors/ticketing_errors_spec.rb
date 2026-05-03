@@ -5,16 +5,16 @@ require 'spec_helper'
 RSpec.describe 'Custom Exceptions' do
   describe TicketingError do
     it 'inherits from StandardError' do
-      expect(TicketingError.new('test')).to be_a(StandardError)
+      expect(described_class.new('test')).to be_a(StandardError)
     end
 
     it 'stores details hash' do
-      error = TicketingError.new('message', { key: 'value' })
+      error = described_class.new('message', { key: 'value' })
       expect(error.details).to eq({ key: 'value' })
     end
 
     it 'converts to hash' do
-      error = TicketingError.new('test message', { detail: 'info' })
+      error = described_class.new('test message', { detail: 'info' })
       hash = error.to_h
 
       expect(hash[:error]).to eq('TicketingError')
@@ -131,28 +131,22 @@ RSpec.describe 'Custom Exceptions' do
 
   describe 'exception hierarchy' do
     it 'allows catching all booking errors' do
-      begin
-        raise InsufficientSeatsError.new(5, 10)
-      rescue BookingError => e
-        expect(e).to be_a(InsufficientSeatsError)
-      end
+      raise InsufficientSeatsError.new(5, 10)
+    rescue BookingError => e
+      expect(e).to be_a(InsufficientSeatsError)
     end
 
     it 'allows catching all app errors' do
-      begin
-        raise EventNotFoundError.new('event-123')
-      rescue TicketingError => e
-        expect(e).to be_a(EventNotFoundError)
-      end
+      raise EventNotFoundError, 'event-123'
+    rescue TicketingError => e
+      expect(e).to be_a(EventNotFoundError)
     end
 
     it 'does not catch system errors as TicketingError' do
       expect do
-        begin
-          raise SystemExit
-        rescue TicketingError
-          # Should not catch
-        end
+        raise SystemExit
+      rescue TicketingError
+        # Should not catch
       end.to raise_error(SystemExit)
     end
   end

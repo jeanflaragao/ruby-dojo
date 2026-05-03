@@ -89,7 +89,7 @@ RSpec.describe Success do
 
   describe '#map' do
     it 'transforms the value' do
-      result = success.map { |v| v.upcase }
+      result = success.map(&:upcase)
       expect(result).to be_success
       expect(result.value).to eq('SUCCESS VALUE')
     end
@@ -100,9 +100,9 @@ RSpec.describe Success do
     end
 
     it 'can chain multiple maps' do
-      result = Success.new(10)
-        .map { |n| n * 2 }
-        .map { |n| n + 5 }
+      result = described_class.new(10)
+                              .map { |n| n * 2 }
+                              .map { |n| n + 5 }
 
       expect(result.value).to eq(25)
     end
@@ -193,7 +193,7 @@ RSpec.describe Failure do
 
   describe '#map' do
     it 'does not transform on failure' do
-      result = failure.map { |v| v.upcase }
+      result = failure.map(&:upcase)
       expect(result).to eq(failure)
     end
   end
@@ -233,17 +233,17 @@ RSpec.describe 'Railway-Oriented Programming' do
 
   it 'chains successful operations' do
     result = validate(10)
-      .flat_map { |n| double(n) }
-      .flat_map { |n| add_five(n) }
+             .flat_map { |n| double(n) }
+             .flat_map { |n|               add_five(n) }
 
     expect(result).to be_success
-    expect(result.value).to eq(25)  # (10 * 2) + 5
+    expect(result.value).to eq(25) # (10 * 2) + 5
   end
 
   it 'short-circuits on first failure' do
-    result = validate(-5)  # Fails here
-      .flat_map { |n| double(n) }  # Skipped
-      .flat_map { |n| add_five(n) }  # Skipped
+    result = validate(-5) # Fails here
+             .flat_map { |n| double(n) } # Skipped
+             .flat_map { |n|               add_five(n) } # Skipped
 
     expect(result).to be_failure
     expect(result.error).to eq('must be positive')
@@ -254,8 +254,8 @@ RSpec.describe 'Railway-Oriented Programming' do
     failure_executed = false
 
     Result.success('value')
-      .on_success { success_executed = true }
-      .on_failure { failure_executed = true }
+          .on_success { success_executed = true }
+          .on_failure { failure_executed = true }
 
     expect(success_executed).to be true
     expect(failure_executed).to be false
@@ -265,8 +265,8 @@ RSpec.describe 'Railway-Oriented Programming' do
     log = []
 
     Result.failure('error')
-      .on_success { |v| log << "Success: #{v}" }
-      .on_failure { |e| log << "Failure: #{e}" }
+          .on_success { |v| log << "Success: #{v}" }
+          .on_failure { |e| log << "Failure: #{e}" }
 
     expect(log).to eq(['Failure: error'])
   end
