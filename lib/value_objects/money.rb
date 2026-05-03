@@ -42,12 +42,12 @@ class Money
     Money.new(amount - other.amount, currency)
   end
 
-  def *(multiplier)
-    Money.new(amount * multiplier, currency)
+  def *(other)
+    Money.new(amount * other, currency)
   end
 
-  def /(divisor)
-    Money.new(amount / divisor, currency)
+  def /(other)
+    Money.new(amount / other, currency)
   end
 
   # Comparison

@@ -186,7 +186,7 @@ else
   multiple_errors.error_messages.each { |msg| puts "      - #{msg}" }
 end
 
-puts "\n" + '=' * 80
+puts "\n#{'=' * 80}"
 puts 'KEY TAKEAWAYS'
 puts '=' * 80
 puts <<~TAKEAWAYS

@@ -25,11 +25,9 @@ class Percentage
   end
 
   def +(other)
-    unless other.is_a?(Percentage)
-      raise ArgumentError, "You can only add another Percentage object"
-    end
+    raise ArgumentError, 'You can only add another Percentage object' unless other.is_a?(Percentage)
 
-    new_value = (self.value + other.value).round(2)
+    new_value = (value + other.value).round(2)
 
     Percentage.new(new_value)
   end

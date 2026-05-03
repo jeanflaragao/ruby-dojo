@@ -30,7 +30,7 @@ class DateRange
 
   # Check if a date falls within this range (inclusive)
   def includes?(date)
-    date >= start_date && date <= end_date
+    date.between?(start_date, end_date)
   end
 
   # Check if two date ranges overlap

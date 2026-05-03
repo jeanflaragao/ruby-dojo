@@ -9,42 +9,42 @@ RSpec.describe DateRange do
 
   describe 'initialization' do
     it 'creates a date range' do
-      range = DateRange.new(start_date, end_date)
+      range = described_class.new(start_date, end_date)
       expect(range.start_date).to eq(start_date)
       expect(range.end_date).to eq(end_date)
     end
 
     it 'raises error when start is after end' do
       expect do
-        DateRange.new(end_date, start_date)
+        described_class.new(end_date, start_date)
       end.to raise_error(ArgumentError, /before/)
     end
 
     it 'allows same start and end (single day)' do
-      range = DateRange.new(start_date, start_date)
+      range = described_class.new(start_date, start_date)
       expect(range.days).to eq(1)
     end
 
     it 'is frozen (immutable)' do
-      range = DateRange.new(start_date, end_date)
+      range = described_class.new(start_date, end_date)
       expect(range).to be_frozen
     end
   end
 
   describe 'duration' do
     it 'calculates days in range (inclusive)' do
-      range = DateRange.new(start_date, end_date)
+      range = described_class.new(start_date, end_date)
       expect(range.days).to eq(31)
     end
 
     it 'calculates weeks in range' do
-      range = DateRange.new(Date.new(2024, 1, 1), Date.new(2024, 1, 14))
+      range = described_class.new(Date.new(2024, 1, 1), Date.new(2024, 1, 14))
       expect(range.weeks).to eq(2)
     end
   end
 
   describe 'includes?' do
-    let(:range) { DateRange.new(start_date, end_date) }
+    let(:range) { described_class.new(start_date, end_date) }
 
     it 'returns true for date within range' do
       mid_date = Date.new(2024, 1, 15)
@@ -71,56 +71,56 @@ RSpec.describe DateRange do
   end
 
   describe 'overlaps?' do
-    let(:range) { DateRange.new(Date.new(2024, 1, 10), Date.new(2024, 1, 20)) }
+    let(:range) { described_class.new(Date.new(2024, 1, 10), Date.new(2024, 1, 20)) }
 
     it 'returns true when ranges overlap' do
-      other = DateRange.new(Date.new(2024, 1, 15), Date.new(2024, 1, 25))
+      other = described_class.new(Date.new(2024, 1, 15), Date.new(2024, 1, 25))
       expect(range.overlaps?(other)).to be true
     end
 
     it 'returns true when one range contains another' do
-      other = DateRange.new(Date.new(2024, 1, 12), Date.new(2024, 1, 18))
+      other = described_class.new(Date.new(2024, 1, 12), Date.new(2024, 1, 18))
       expect(range.overlaps?(other)).to be true
     end
 
     it 'returns true when ranges touch at boundary' do
-      other = DateRange.new(Date.new(2024, 1, 20), Date.new(2024, 1, 25))
+      other = described_class.new(Date.new(2024, 1, 20), Date.new(2024, 1, 25))
       expect(range.overlaps?(other)).to be true
     end
 
     it 'returns false when ranges do not overlap' do
-      other = DateRange.new(Date.new(2024, 1, 21), Date.new(2024, 1, 25))
+      other = described_class.new(Date.new(2024, 1, 21), Date.new(2024, 1, 25))
       expect(range.overlaps?(other)).to be false
     end
 
     it 'returns false when ranges are adjacent but not touching' do
-      other = DateRange.new(Date.new(2024, 1, 22), Date.new(2024, 1, 25))
+      other = described_class.new(Date.new(2024, 1, 22), Date.new(2024, 1, 25))
       expect(range.overlaps?(other)).to be false
     end
   end
 
   describe 'equality' do
     it 'is equal when dates match' do
-      range1 = DateRange.new(start_date, end_date)
-      range2 = DateRange.new(start_date, end_date)
+      range1 = described_class.new(start_date, end_date)
+      range2 = described_class.new(start_date, end_date)
       expect(range1).to eq(range2)
     end
 
     it 'is not equal when dates differ' do
-      range1 = DateRange.new(start_date, end_date)
-      range2 = DateRange.new(start_date, Date.new(2024, 2, 1))
+      range1 = described_class.new(start_date, end_date)
+      range2 = described_class.new(start_date, Date.new(2024, 2, 1))
       expect(range1).not_to eq(range2)
     end
   end
 
   describe 'formatting' do
     it 'converts to string' do
-      range = DateRange.new(start_date, end_date)
+      range = described_class.new(start_date, end_date)
       expect(range.to_s).to eq('2024-01-01 to 2024-01-31')
     end
 
     it 'converts to hash' do
-      range = DateRange.new(start_date, end_date)
+      range = described_class.new(start_date, end_date)
       expect(range.to_h).to eq({
                                  start_date: start_date,
                                  end_date: end_date,

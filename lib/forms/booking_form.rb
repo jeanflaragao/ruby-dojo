@@ -18,7 +18,7 @@
 class BookingForm
   VALID_TICKET_TYPES = %w[vip general student].freeze
   MAX_SEATS_PER_BOOKING = 10
-  EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+  EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d-]+(\.[a-z\d-]+)*\.[a-z]+\z/i
 
   attr_reader :event_name, :seats, :ticket_type, :email, :errors
 
@@ -62,9 +62,9 @@ class BookingForm
   private
 
   def validate_event_name
-    if blank?(event_name)
-      add_error(:event_name, "can't be blank")
-    end
+    return unless blank?(event_name)
+
+    add_error(:event_name, "can't be blank")
   end
 
   def validate_seats
@@ -82,14 +82,12 @@ class BookingForm
     seats_int = seats.to_i
 
     # Check if positive
-    unless seats_int.positive?
-      add_error(:seats, 'must be positive')
-    end
+    add_error(:seats, 'must be positive') unless seats_int.positive?
 
     # Check maximum
-    if seats_int > MAX_SEATS_PER_BOOKING
-      add_error(:seats, "cannot exceed #{MAX_SEATS_PER_BOOKING} per booking")
-    end
+    return unless seats_int > MAX_SEATS_PER_BOOKING
+
+    add_error(:seats, "cannot exceed #{MAX_SEATS_PER_BOOKING} per booking")
   end
 
   def validate_ticket_type
@@ -98,9 +96,9 @@ class BookingForm
       return
     end
 
-    unless VALID_TICKET_TYPES.include?(ticket_type.to_s.downcase)
-      add_error(:ticket_type, "must be one of: #{VALID_TICKET_TYPES.join(', ')}")
-    end
+    return if VALID_TICKET_TYPES.include?(ticket_type.to_s.downcase)
+
+    add_error(:ticket_type, "must be one of: #{VALID_TICKET_TYPES.join(', ')}")
   end
 
   def validate_email
@@ -109,9 +107,9 @@ class BookingForm
       return
     end
 
-    unless email.match?(EMAIL_REGEX)
-      add_error(:email, 'must be a valid email address')
-    end
+    return if email.match?(EMAIL_REGEX)
+
+    add_error(:email, 'must be a valid email address')
   end
 
   # Helper methods

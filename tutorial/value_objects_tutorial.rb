@@ -8,13 +8,13 @@ puts <<~HEADER
   ================================================================================
   VALUE OBJECTS & FORM OBJECTS TUTORIAL
   ================================================================================
-  
+
   This tutorial demonstrates the concepts covered in Day 5:
   1. What is primitive obsession?
   2. Value object characteristics
   3. Why immutability matters
   4. Form objects for validation
-  
+
   Press ENTER to continue through examples...
   ================================================================================
 HEADER
@@ -35,7 +35,7 @@ puts '=' * 80
 
 puts <<~PROBLEM
   PROBLEM: Using basic types (integers, strings) for domain concepts
-  
+
   Example - Representing money with integers:
 PROBLEM
 
@@ -49,22 +49,22 @@ puts "  vip_price = #{vip_price}"
 puts "  currency = '#{currency}'"
 
 puts "\n❌ PROBLEMS:"
-puts "  1. What if we mix currencies?"
+puts '  1. What if we mix currencies?'
 
 usd_price = 100
 eur_price = 100
-total = usd_price + eur_price  # BUG! Can't add different currencies
+total = usd_price + eur_price # BUG! Can't add different currencies
 puts "     total = usd_price + eur_price  # => #{total} (WRONG! Mixed currencies)"
 
 puts "\n  2. Currency is separate - easy to forget/misuse"
-puts "     price_without_currency = 100  # Which currency??"
+puts '     price_without_currency = 100  # Which currency??'
 
 puts "\n  3. No validation"
 negative_price = -50
 puts "     negative_price = #{negative_price}  # Should this be allowed?"
 
 puts "\n  4. No encapsulation of domain rules"
-puts "     How to apply tax? Discounts? Formatting?"
+puts '     How to apply tax? Discounts? Formatting?'
 
 pause
 
@@ -100,8 +100,8 @@ class Money
     Money.new(amount + other.amount, currency)
   end
 
-  def *(multiplier)
-    Money.new(amount * multiplier, currency)
+  def *(other)
+    Money.new(amount * other, currency)
   end
 
   def to_s
@@ -155,13 +155,13 @@ puts "  price.frozen?  # => #{price.frozen?}"
 puts "\n  Can't modify:"
 begin
   price.instance_variable_set(:@amount, 200)
-rescue RuntimeError => e
-  puts "    price.amount = 200  # => FrozenError ✓"
+rescue RuntimeError
+  puts '    price.amount = 200  # => FrozenError ✓'
 end
 
 puts "\n  Methods return NEW instances:"
 double_price = price * 2
-puts "    double_price = price * 2"
+puts '    double_price = price * 2'
 puts "    price         # => #{price} (unchanged)"
 puts "    double_price  # => #{double_price} (new object)"
 puts "    price.equal?(double_price)  # => #{price.equal?(double_price)}"
@@ -207,7 +207,7 @@ puts "  m1 == m2      # => #{m1 == m2} (value equality ✓)"
 puts "  m1.equal?(m2) # => #{m1.equal?(m2)} (different objects)"
 
 puts "\nWHY THIS MATTERS:"
-puts "  - Can compare based on business value"
+puts '  - Can compare based on business value'
 puts "  - Don't care about object identity"
 puts "  - #{Money.new(100, 'USD')} is the same as #{Money.new(100, 'USD')}"
 
@@ -237,7 +237,7 @@ class DateRange
   end
 
   def includes?(date)
-    date >= start_date && date <= end_date
+    date.between?(start_date, end_date)
   end
 
   def overlaps?(other)
@@ -253,7 +253,7 @@ puts 'ENCAPSULATING DATE LOGIC:'
 puts
 
 range = DateRange.new(Date.new(2024, 6, 1), Date.new(2024, 6, 7))
-puts "  range = DateRange.new(Date.new(2024, 6, 1), Date.new(2024, 6, 7))"
+puts '  range = DateRange.new(Date.new(2024, 6, 1), Date.new(2024, 6, 7))'
 puts "  range  # => #{range}"
 puts "  range.days  # => #{range.days}"
 
@@ -287,11 +287,11 @@ puts '=' * 80
 puts 'THE PROBLEM: Business logic handling raw input'
 puts
 
-puts "  # Controller receives raw params:"
+puts '  # Controller receives raw params:'
 puts "  params = { seats: 'abc', email: 'bad' }"
 puts
-puts "  # Business service gets garbage:"
-puts "  BookingService.book(params[:seats])  # BOOM! 💥"
+puts '  # Business service gets garbage:'
+puts '  BookingService.book(params[:seats])  # BOOM! 💥'
 
 pause
 
@@ -310,13 +310,9 @@ class SimpleForm
   def valid?
     @errors = {}
 
-    unless numeric?(seats)
-      @errors[:seats] = ['must be a number']
-    end
+    @errors[:seats] = ['must be a number'] unless numeric?(seats)
 
-    unless email&.include?('@')
-      @errors[:email] = ['must be valid']
-    end
+    @errors[:email] = ['must be valid'] unless email&.include?('@')
 
     @errors.empty?
   end
@@ -371,31 +367,31 @@ puts <<~SUMMARY
     ✓ Value equality (not identity)
     ✓ Can use as hash keys
     ✓ Return new instances from operations
-  
+
   Examples:
     - Money (amount + currency)
     - DateRange (start + end + domain ops)
     - Address (street + city + state + zip)
     - Percentage (value + formatting)
-  
+
   FORM OBJECTS:
     ✓ Validate raw user input
     ✓ Coerce types (strings → proper types)
     ✓ Separate from business logic
     ✓ Don't persist to database
     ✓ User-friendly error messages
-  
+
   Examples:
     - BookingForm
     - EventForm
     - RegistrationForm
-  
+
   KEY PRINCIPLE:
     Make invalid states UNREPRESENTABLE
     - Money can't have negative amounts
     - DateRange can't have start > end
     - Form validation prevents bad data reaching business logic
-  
+
   NEXT STEPS:
     1. Complete exercises in DAY_5_EXERCISES.md
     2. Run: docker compose run --rm app ruby day_5_demo.rb
