@@ -57,6 +57,14 @@ demo-errors:
 demo-booking:
 	docker compose run --rm app ruby demo/day_4.rb
 
+# Run Day 5 value objects tutorial
+tutorial-day-5:
+	docker compose run --rm app ruby tutorial/value_objects_tutorial.rb
+
+# Run Day 5 demo
+demo-day-5:
+	docker compose run --rm app ruby demo/day_5_demo.rb
+
 # Open coverage report (requires running tests first)
 coverage:
 	@echo "Opening coverage report..."
@@ -72,5 +80,5 @@ format:
 
 # Clean generated files
 clean:
-	rm -rf coverage/
-	rm -f spec/examples.txt
+	sudo rm -rf coverage/
+	sudo rm -f spec/examples.txt

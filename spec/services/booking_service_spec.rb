@@ -389,13 +389,15 @@ RSpec.describe BookingService do
     it 'calculates price for guest user' do
       guest = GuestUser.new
       price = service.calculate_price_for_user(guest, 100.0)
-      expect(price).to eq(100.0) # No discount
+      expect(price).to be_success
+      expect(price.value).to eq(100.0) # No discount
     end
 
     it 'calculates price for VIP user' do
       vip = User.new(email: 'vip@example.com', name: 'VIP', role: 'vip')
       price = service.calculate_price_for_user(vip, 100.0)
-      expect(price).to eq(80.0) # 20% discount
+      expect(price).to be_success
+      expect(price.value).to eq(80.0) # 20% discount
     end
   end
 end
