@@ -35,9 +35,9 @@ class Event
   # Check with: Event.ancestors
   serializable_attributes :name, :description, :start_time, :end_time, :total_seats, :venue
   attr_accessor :available_seats
-  attr_reader :name, :description, :venue, :start_time, :end_time, :total_seats
+  attr_reader :name, :description, :venue, :start_time, :end_time, :total_seats, :base_price
 
-  def initialize(name:, description:, venue:, start_time:, end_time:, total_seats:)
+  def initialize(name:, description:, venue:, start_time:, end_time:, total_seats:, base_price: nil)
     # Use Validatable module methods!
     validate_required_fields(name: name, total_seats: total_seats)
     validate_business_rules(start_time: start_time, end_time: end_time, total_seats: total_seats, venue: venue)
@@ -49,7 +49,7 @@ class Event
     @end_time = end_time
     @total_seats = total_seats
     @available_seats = total_seats
-
+    @base_price = base_price
     # Use Timestampable module method!
     set_timestamps
   end

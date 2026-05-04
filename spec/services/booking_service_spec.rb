@@ -400,4 +400,38 @@ RSpec.describe BookingService do
       expect(price.value).to eq(80.0) # 20% discount
     end
   end
+
+  describe '#book_with_form' do
+    it 'books tickets using form object and value objects' do
+      # Setup
+      base_price = Money.new(100, 'USD')
+      event = Event.new(
+        name: 'Conference',
+        description: 'Tech conference',
+        venue: venue,
+        start_time: Time.new(2026, 8, 1, 9, 0, 0),
+        end_time: Time.new(2026, 8, 1, 17, 0, 0),
+        total_seats: 50,
+        base_price: base_price
+      )
+      repository.add(event)
+
+      # Form
+      form = BookingForm.new(
+        event_name: 'Conference',
+        seats: '2',
+        ticket_type: 'vip',
+        email: 'user@example.com'
+      )
+
+      # Book
+      result = service.book_with_form(form)
+
+      # Verify
+      expect(result).to be_success
+      booking = result.value
+      expect(booking.total_price).to eq(Money.new(400, 'USD')) # 2 VIP @ $200 each
+      expect(booking.ticket_type).to be_a(VIPTicket)
+    end
+  end
 end

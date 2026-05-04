@@ -1,20 +1,5 @@
 # frozen_string_literal: true
 
-# BookingForm - Form object for handling booking input validation
-#
-# Form Objects separate validation from business logic:
-# - Handle raw user input (strings, potentially nil)
-# - Validate and coerce types
-# - Don't persist to database
-# - Can validate complex multi-model forms
-#
-# Example:
-#   form = BookingForm.new(params)
-#   if form.valid?
-#     BookingService.book(form.to_h)
-#   else
-#     render json: { errors: form.error_messages }
-#   end
 class BookingForm
   VALID_TICKET_TYPES = %w[vip general student].freeze
   MAX_SEATS_PER_BOOKING = 10

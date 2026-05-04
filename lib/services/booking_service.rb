@@ -3,37 +3,18 @@
 require_relative '../result'
 require_relative '../errors/ticketing_errors'
 require_relative 'payment_service'
-
-# BookingService - Handles ticket booking with proper error handling
-#
-# DEMONSTRATES:
-# - Service Object pattern (business logic separate from models)
-# - Result objects for expected failures (validation, business rules)
-# - Exceptions for unexpected failures (system errors)
-# - Railway-Oriented Programming (chaining operations)
-#
-# WHY SERVICE OBJECT?
-# - Models should be simple data containers
-# - Business logic belongs in services
-# - Easier to test complex workflows
-# - Single Responsibility Principle
-#
-# ERROR HANDLING STRATEGY:
-# - Use Result for business logic failures (expected)
-# - Use Exceptions for system failures (unexpected)
-# - Always validate inputs
-# - Provide helpful error messages
-
 class BookingService < PaymentService
   # Booking result data structure
-  Booking = Struct.new(:event, :seats_reserved, :total_price, :booking_id, :timestamp) do
+  Booking = Struct.new(:event, :seats_reserved, :total_price, :booking_id, :timestamp, :ticket_type, :email) do
     def to_h
       {
         booking_id: booking_id,
         event_name: event.name,
         seats_reserved: seats_reserved,
         total_price: total_price,
-        timestamp: timestamp
+        timestamp: timestamp,
+        ticket_type: ticket_type,
+        email: email
       }
     end
   end
@@ -110,6 +91,43 @@ class BookingService < PaymentService
     discount = user.discount_percentage
     discounted = base_price * (1 - (discount / 100.0))
     Result.success(discounted)
+  end
+
+  def book_with_form(form)
+    # 1. Validate the form
+    return Result.failure(form.error_messages) unless form.valid?
+
+    # 2. Extract the safe, coerced data
+    safe_data = form.to_h
+
+    # 3. Find the event (Using the helper method you already wrote on line 149!)
+    event_result = find_event(safe_data[:event_name])
+
+    # If the helper method returned a failure, stop here and return it
+    return event_result unless event_result.success?
+
+    # Unwrap the actual Event object from the Result
+    event = event_result.value
+
+    # 4. Create the correct TicketType Value Object
+    ticket = build_ticket(safe_data[:ticket_type], event.base_price)
+
+    # 5. Calculate total
+    total_price = ticket.price * safe_data[:seats]
+
+    # 6. Build the final Booking struct (Fixed the event_: typo!)
+    booking = Booking.new(
+      event: event,
+      ticket_type: ticket,
+      seats_reserved: safe_data[:seats],
+      total_price: total_price,
+      email: safe_data[:email],
+      booking_id: generate_booking_id,
+      timestamp: Time.now
+    )
+
+    # 7. Return success!
+    Result.success(booking)
   end
 
   private
@@ -224,6 +242,20 @@ class BookingService < PaymentService
 
   def extract_event_name(message)
     message[/'([^']+)'/, 1] || 'unknown'
+  end
+
+  def build_ticket(ticket_type_sym, base_price)
+    case ticket_type_sym
+    when :vip
+      VIPTicket.new(base_price)
+    when :general
+      GeneralTicket.new(base_price)
+    when :student
+      StudentTicket.new(base_price)
+    else
+      # We shouldn't hit this because BookingForm validates the type, but it's safe to have!
+      raise ArgumentError, "Unknown ticket type: #{ticket_type_sym}"
+    end
   end
 end
 
