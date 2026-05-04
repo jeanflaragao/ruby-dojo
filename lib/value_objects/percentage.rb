@@ -20,8 +20,12 @@ class Percentage
     value == other.value
   end
 
-  def of(number)
-    value * number
+  def of(amount_or_money)
+    if amount_or_money.is_a?(Money)
+      Money.new(value * amount_or_money.amount, amount_or_money.currency)
+    else
+      value * amount_or_money
+    end
   end
 
   def +(other)

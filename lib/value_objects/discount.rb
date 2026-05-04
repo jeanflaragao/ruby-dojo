@@ -3,6 +3,8 @@
 class Discount
   # Factory methods for different discount types
   def self.percentage(percent)
+    raise ArgumentError, 'Percentage must be between 0 and 100' if percent < 0 || percent > 100
+
     new(type: :percentage, value: percent)
   end
 

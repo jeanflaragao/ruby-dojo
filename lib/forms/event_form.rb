@@ -54,11 +54,13 @@ class EventForm
   def validate_time_range
     return unless start_time && end_time
 
-    start_t = Time.parse(start_time)
-    end_t   = Time.parse(end_time)
-    add_error(:end_time, 'must be after start time') if end_t <= start_t
-  rescue ArgumentError
-    add_error(:start_time, 'is not a valid datetime')
+    begin
+      start_t = Time.parse(start_time)
+      end_t = Time.parse(end_time)
+      add_error(:end_time, 'must be after start time') if end_t <= start_t
+    rescue ArgumentError
+      add_error(:start_time, 'is not a valid datetime')
+    end
   end
 
   def validate_positive(field)
