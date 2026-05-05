@@ -14,7 +14,8 @@
 #
 # FUTURE: This in-memory implementation will be replaced with
 # ActiveRecord (PostgreSQL) on Day 8, but the interface stays the same!
-require_relative 'searchable'
+require_relative '../searchable'
+
 class EventRepository
   include Searchable
 
