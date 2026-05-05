@@ -104,7 +104,21 @@ class Event
     new(**hash, venue: venue)
   end
 
+  def ticket_price(ticket_type_sym)
+    ticket = build_ticket_type(ticket_type_sym)
+    ticket.price
+  end
+
   private
+
+  def build_ticket_type(type_sym)
+    case type_sym
+    when :vip then VIPTicket.new(base_price)
+    when :general then GeneralTicket.new(base_price)
+    when :student then StudentTicket.new(base_price)
+    else raise ArgumentError, "Unknown ticket type: #{type_sym}"
+    end
+  end
 
   def validate_required_fields(name:, total_seats:)
     # Use module methods instead of duplicating logic!
