@@ -266,6 +266,169 @@ RSpec.describe EventRepository do
     end
   end
 
+  describe '#events_in_price_range' do
+    let(:venue) do
+      Venue.new(
+        name: 'Convention Center',
+        address: '123 Main St',
+        capacity: 1000
+      )
+    end
+
+    it 'filters events by price range' do
+      cheap = Event.new(
+        name: 'Ruby Conference',
+        description: 'Annual Ruby event',
+        venue: venue,
+        start_time: Time.new(2024, 6, 1, 10, 0, 0),
+        end_time: Time.new(2024, 6, 1, 18, 0, 0),
+        total_seats: 10,
+        base_price: Money.new(50, 'USD')
+      )
+
+      mid = Event.new(
+        name: 'Ruby Meetup',
+        description: 'Monthly Ruby meetup',
+        venue: venue,
+        start_time: Time.new(2024, 6, 15, 10, 0, 0),
+        end_time: Time.new(2024, 6, 15, 18, 0, 0),
+        total_seats: 200,
+        base_price: Money.new(100, 'USD')
+      )
+
+      expensive = Event.new(
+        name: 'Ruby Gala',
+        description: 'Exclusive Ruby event',
+        venue: venue,
+        start_time: Time.new(2024, 6, 20, 10, 0, 0),
+        end_time: Time.new(2024, 6, 20, 18, 0, 0),
+        total_seats: 50,
+        base_price: Money.new(200, 'USD')
+      )
+
+      repo = described_class.new([cheap, mid, expensive])
+
+      results = repo.events_in_price_range(
+        Money.new(75, 'USD'),
+        Money.new(150, 'USD')
+      )
+
+      expect(results).to include(mid)
+      expect(results).not_to include(cheap, expensive)
+    end
+  end
+
+  describe '#events_in_date_range' do
+    it 'filters events by date range' do
+      june = Event.new(
+        name: 'June Event',
+        description: 'Event in June',
+        venue: Venue.new(
+          name: 'Convention Center',
+          address: '123 Main St',
+          capacity: 100
+        ),
+        start_time: Time.new(2026, 6, 1),
+        end_time: Time.new(2026, 6, 30),
+        total_seats: 100,
+        base_price: Money.new(100, 'USD')
+      )
+      july = Event.new(
+        name: 'July Event',
+        description: 'Event in July',
+        venue: Venue.new(
+          name: 'Convention Center',
+          address: '123 Main St',
+          capacity: 100
+        ),
+        start_time: Time.new(2026, 7, 1),
+        end_time: Time.new(2026, 7, 31),
+        total_seats: 100,
+        base_price: Money.new(100, 'USD')
+      )
+      august = Event.new(
+        name: 'August Event',
+        description: 'Event in August',
+        venue: Venue.new(
+          name: 'Convention Center',
+          address: '123 Main St',
+          capacity: 100
+        ),
+        start_time: Time.new(2026, 8, 1),
+        end_time: Time.new(2026, 8, 31),
+        total_seats: 100,
+        base_price: Money.new(100, 'USD')
+      )
+
+      repo = described_class.new([june, july, august])
+
+      date_range = DateRange.new(
+        Date.new(2026, 6, 1),
+        Date.new(2026, 7, 15)
+      )
+
+      results = repo.events_in_date_range(date_range)
+
+      expect(results).to include(june, july)
+      expect(results).not_to include(august)
+    end
+  end
+
+  describe '#available_events_with_min_seats' do
+    it 'filters events with enough available seats' do
+      full = Event.new(
+        name: 'Full Event',
+        description: 'Sold out event',
+        venue: Venue.new(
+          name: 'Convention Center',
+          address: '123 Main St',
+          capacity: 10
+        ),
+        start_time: Time.new(2026, 6, 1),
+        end_time: Time.new(2026, 6, 2),
+        total_seats: 10,
+        base_price: Money.new(100, 'USD')
+      )
+      full.reserve_seats(10) # Sold out
+
+      partial = Event.new(
+        name: 'Partial Event',
+        description: 'Almost sold out event',
+        venue: Venue.new(
+          name: 'Convention Center',
+          address: '123 Main St',
+          capacity: 100
+        ),
+        start_time: Time.new(2026, 6, 3),
+        end_time: Time.new(2026, 6, 4),
+        total_seats: 100,
+        base_price: Money.new(100, 'USD')
+      )
+      partial.reserve_seats(95) # 5 left
+
+      plenty = Event.new(
+        name: 'Plenty Event',
+        description: 'Event with plenty of seats',
+        venue: Venue.new(
+          name: 'Convention Center',
+          address: '123 Main St',
+          capacity: 100
+        ),
+        start_time: Time.new(2026, 6, 5),
+        end_time: Time.new(2026, 6, 6),
+        total_seats: 100,
+        base_price: Money.new(100, 'USD')
+      )
+
+      repo = described_class.new([full, partial, plenty])
+
+      results = repo.available_events_with_min_seats(10)
+
+      expect(results).to include(plenty)
+      expect(results).not_to include(full, partial)
+    end
+  end
+
   # SHARED EXAMPLES - DRY testing pattern
   # WHY? Reusable test scenarios
   RSpec.shared_examples 'returns a collection' do

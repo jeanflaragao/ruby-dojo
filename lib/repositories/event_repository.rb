@@ -158,4 +158,22 @@ class EventRepository
   def all_deleted
     @events.select(&:deleted?)
   end
+
+  def events_in_price_range(min_price, max_price)
+    @events.select do |event|
+      event.base_price.between?(min_price, max_price)
+    end
+  end
+
+  def events_in_date_range(date_range)
+    @events.select do |event|
+      date_range.includes?(event.start_time.to_date)
+    end
+  end
+
+  def available_events_with_min_seats(min_seats)
+    @events.select do |event|
+      !event.sold_out? && event.available_seats >= min_seats
+    end
+  end
 end
