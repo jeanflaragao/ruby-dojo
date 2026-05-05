@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'serializable'
+require_relative '../serializable'
+
 class Venue
   include Serializable
 
