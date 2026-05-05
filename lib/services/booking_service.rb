@@ -95,7 +95,7 @@ class BookingService < PaymentService
 
   def book_with_form(form)
     # 1. Validate the form
-    return Result.failure(form.error_messages) unless form.valid?
+    return Result.failure(form.errors) unless form.valid?
 
     # 2. Extract the safe, coerced data
     safe_data = form.to_h
