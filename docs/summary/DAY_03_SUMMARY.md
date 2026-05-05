@@ -403,7 +403,7 @@ module Validatable
 end
 
 # Require where needed
-require_relative 'validatable'
+require_relative '../concerns/validatable'
 
 class Event
   include Validatable
