@@ -434,4 +434,46 @@ RSpec.describe BookingService do
       expect(booking.ticket_type).to be_a(VIPTicket)
     end
   end
+
+  describe 'with booking repository' do
+    let(:event) do
+      Event.new(
+        name: 'Conference',
+        description: 'A test event',
+        venue: Venue.new(name: 'Test Venue', address: '123 Main St', capacity: 100),
+        start_time: Time.new(2026, 6, 1),
+        end_time: Time.new(2026, 6, 2),
+        total_seats: 100,
+        base_price: Money.new(100, 'USD')
+      )
+    end
+    let(:event_repo) { EventRepository.new([event]) }
+    let(:booking_repo) { BookingRepository.new }
+    let(:service) { described_class.new(event_repo, booking_repo) }
+
+    it 'stores bookings in repository' do
+      form = BookingForm.new(
+        event_name: 'Conference',
+        seats: '2',
+        ticket_type: 'vip',
+        email: 'user@example.com'
+      )
+      service.book_with_form(form)
+
+      expect(booking_repo.all.size).to eq(1)
+    end
+
+    it 'retrieves booking history by email' do
+      form = BookingForm.new(
+        event_name: 'Conference',
+        seats: '2',
+        ticket_type: 'vip',
+        email: 'user@example.com'
+      )
+      service.book_with_form(form)
+
+      history = service.booking_history('user@example.com')
+      expect(history.size).to eq(1)
+    end
+  end
 end

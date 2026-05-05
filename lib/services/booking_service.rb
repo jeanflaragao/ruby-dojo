@@ -21,8 +21,9 @@ class BookingService < PaymentService
 
   # Initialize service with repository
   # WHY dependency injection? Makes testing easier (can inject mock repo)
-  def initialize(event_repository)
-    @repository = event_repository
+  def initialize(event_repository, booking_repository = nil)
+    @event_repository = event_repository
+    @booking_repository = booking_repository
   end
 
   # Book tickets using Result pattern (for expected failures)
@@ -126,8 +127,16 @@ class BookingService < PaymentService
       timestamp: Time.now
     )
 
+    @booking_repository&.add(booking)
+
     # 7. Return success!
     Result.success(booking)
+  end
+
+  def booking_history(email)
+    return [] unless @booking_repository
+
+    @booking_repository.find_by_email(email)
   end
 
   private
@@ -147,7 +156,7 @@ class BookingService < PaymentService
   # Step 2: Find the event
   # WHY Result? Event not found is an expected failure
   def find_event(event_name)
-    event = @repository.find_by_name(event_name)
+    event = @event_repository.find_by_name(event_name) # Updated!
 
     if event
       Result.success(event)
@@ -193,6 +202,8 @@ class BookingService < PaymentService
       generate_booking_id,
       Time.now
     )
+
+    @booking_repository&.add(booking)
 
     Result.success(booking)
   end
