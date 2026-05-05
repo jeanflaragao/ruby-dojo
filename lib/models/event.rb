@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative 'validatable'
-require_relative 'timestampable'
-require_relative 'softdeletable'
-require_relative 'serializable'
-require_relative 'loggable'
+require_relative '../concerns/validatable'
+require_relative '../concerns/timestampable'
+require_relative '../softdeletable'
+require_relative '../serializable'
+require_relative '../loggable'
 
 # Event - Refactored to use modules
 #
