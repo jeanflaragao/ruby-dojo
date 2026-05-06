@@ -4,7 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile
     # This keeps the container alive in the background for development
-    command: tail -f /dev/null
+    command: tail -f /dev/null && bundle exec rackup --host 0.0.0.0 -p 4567
+    ports:
+      - "4567:4567"
     volumes:
       - .:/app
       # This named volume caches your gems.
