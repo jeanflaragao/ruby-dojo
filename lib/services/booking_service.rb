@@ -19,11 +19,7 @@ class BookingService < PaymentService
     end
   end
 
-  # Initialize service with repository
-  # WHY dependency injection? Makes testing easier (can inject mock repo)
-  def initialize(event_repository, booking_repository = nil)
-    @event_repository = event_repository
-    @booking_repository = booking_repository
+  def initialize()
   end
 
   # Book tickets using Result pattern (for expected failures)
@@ -101,42 +97,32 @@ class BookingService < PaymentService
     # 2. Extract the safe, coerced data
     safe_data = form.to_h
 
-    # 3. Find the event (Using the helper method you already wrote on line 149!)
+    # 3. Find the event
     event_result = find_event(safe_data[:event_name])
-
-    # If the helper method returned a failure, stop here and return it
     return event_result unless event_result.success?
-
-    # Unwrap the actual Event object from the Result
+    
     event = event_result.value
 
-    # 4. Create the correct TicketType Value Object
-    ticket = build_ticket(safe_data[:ticket_type], event.base_price)
+    ticket = build_ticket(safe_data[:ticket_type].to_sym, event.base_price)
 
     # 5. Calculate total
     total_price = ticket.price * safe_data[:seats]
 
-    # 6. Build the final Booking struct (Fixed the event_: typo!)
-    booking = Booking.new(
+    # 6. Build the final Booking via ActiveRecord 
+    booking = ::Booking.create!(
       event: event,
-      ticket_type: ticket,
+      ticket_type: safe_data[:ticket_type], 
       seats_reserved: safe_data[:seats],
       total_price: total_price,
-      email: safe_data[:email],
-      booking_id: generate_booking_id,
-      timestamp: Time.now
+      email: safe_data[:email]
     )
-
-    @booking_repository&.add(booking)
 
     # 7. Return success!
     Result.success(booking)
   end
 
   def booking_history(email)
-    return [] unless @booking_repository
-
-    @booking_repository.find_by_email(email)
+    Booking.where(email: email)
   end
 
   private
@@ -153,10 +139,8 @@ class BookingService < PaymentService
     Result.success(true)
   end
 
-  # Step 2: Find the event
-  # WHY Result? Event not found is an expected failure
   def find_event(event_name)
-    event = @event_repository.find_by_name(event_name) # Updated!
+    event = Event.find_by(name: event_name)
 
     if event
       Result.success(event)
@@ -195,15 +179,13 @@ class BookingService < PaymentService
   # Step 5: Create booking record
   # WHY separate? In real system, this would save to database
   def create_booking(event, seats_reserved)
-    booking = Booking.new(
-      event,
-      seats_reserved,
-      calculate_price(seats_reserved),
-      generate_booking_id,
-      Time.now
+    booking = Booking.create!(
+      event: event,
+      seats_reserved: seats_reserved,
+      total_price: calculate_price(seats_reserved),
+      booking_id: generate_booking_id,
+      timestamp: Time.now
     )
-
-    @booking_repository&.add(booking)
 
     Result.success(booking)
   end

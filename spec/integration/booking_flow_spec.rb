@@ -4,32 +4,33 @@ require 'spec_helper'
 
 RSpec.describe 'Complete Booking Flow' do
   let(:venue) do
-    Venue.new(
+    Venue.create!(
       name: 'Convention Center',
       address: '123 Main St',
       capacity: 500
     )
   end
 
-  let(:event) do
-    Event.new(
-      name: 'RubyConf 2026',
-      description: 'Ruby conference',
-      venue: venue,
-      start_time: Time.new(2026, 6, 15, 9, 0, 0),
-      end_time: Time.new(2026, 6, 17, 18, 0, 0),
-      total_seats: 100,
-      base_price: Money.new(100, 'USD')
-    )
+  let(:event_name) { 'RubyConf 2026' }
+
+  let!(:event) do
+      Event.create!(
+        name: event_name,
+        description: 'Ruby conference',
+        venue: venue,
+        start_time: Time.new(2026, 6, 15, 9, 0, 0),
+        end_time: Time.new(2026, 6, 17, 18, 0, 0),
+        total_seats: 500,
+        base_price: Money.new(100, 'USD')
+      )
   end
 
-  let(:repository) { EventRepository.new([event]) }
-  let(:service) { BookingService.new(repository) }
+  let(:service) { BookingService.new }
 
   it 'books tickets with VIP pricing' do
     # 1. User fills form
     form = BookingForm.new(
-      event_name: 'RubyConf 2026',
+      event_name: event_name,
       seats: '2',
       ticket_type: 'vip',
       email: 'user@example.com'
@@ -46,15 +47,15 @@ RSpec.describe 'Complete Booking Flow' do
 
     # 5. Price calculated correctly
     booking = result.value
-    expect(booking.total_price).to eq(Money.new(400, 'USD')) # 2 * 200
-    expect(booking.ticket_type).to be_a(VIPTicket)
+    expect(booking.total_price).to eq(Money.new(400, 'USD'))
+    expect(booking.ticket_type).to eq('vip')
     expect(booking.seats_reserved).to eq(2)
   end
 
   it 'validates form before booking' do
     # Invalid form (negative seats)
     form = BookingForm.new(
-      event_name: 'RubyConf 2026',
+      event_name: event_name,
       seats: '-5',
       ticket_type: 'general',
       email: 'user@example.com'
