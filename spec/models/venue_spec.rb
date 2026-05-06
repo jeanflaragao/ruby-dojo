@@ -1,50 +1,41 @@
 # frozen_string_literal: true
 
-# spec/venue_spec.rb
 require 'spec_helper'
+require_relative '../../lib/models/venue'
 
-RSpec.describe Venue do
-  describe '#initialize' do
-    context 'when all required attributes are provided' do
-      # 1. Define your test data using 'let'
-      subject(:venue) do
-        described_class.new(
-          name: name,
-          address: address,
-          capacity: capacity
-        )
-      end
+RSpec.describe Venue, type: :model do
+  describe 'database persistence' do
+    it 'can be created and saved to database' do
+      venue = described_class.create!(
+        name: 'Convention Center',
+        address: '123 Main St',
+        capacity: 500
+      )
 
-      let(:name) { 'Madison Square Garden' }
-      let(:address) { 'New York' }
-      let(:capacity) { 19_500 }
-
-      it 'creates a venue with all attributes' do
-        expect(venue.name).to eq(name)
-        expect(venue.address).to eq(address)
-        expect(venue.capacity).to eq(capacity)
-      end
+      expect(venue).to be_persisted
+      expect(venue.id).not_to be_nil
+      expect(described_class.count).to eq(1)
     end
 
-    context 'when validating attributes' do
-      let(:venue) { { name: 'Valid Name', address: 'Valid Address', capacity: 100 } }
+    it 'can be found by id' do
+      venue = described_class.create!(name: 'Theater', address: '456 Oak Ave', capacity: 200)
+      found = described_class.find(venue.id)
 
-      it 'raises an error for 2 characters' do
-        expect do
-          described_class.new(
-            **venue,
-            name: 'ab'
-          )
-        end.to raise_error(ArgumentError, /name must be at least 3 characters long/)
-      end
+      expect(found.name).to eq('Theater')
     end
   end
 
-  describe '#to_s' do
-    subject(:venue) { described_class.new(name: 'Test Venue', address: '123 Main St', capacity: 500) }
+  describe 'validations' do
+    it 'requires name' do
+      venue = described_class.new(address: '123 Main', capacity: 100)
+      expect(venue).not_to be_valid
+      expect(venue.errors[:name]).to include("can't be blank")
+    end
 
-    it 'returns a formatted string' do
-      expect(venue.to_s).to eq('Venue: Test Venue at 123 Main St (Capacity: 500)')
+    it 'requires capacity to be positive' do
+      venue = described_class.new(name: 'Place', address: '123 Main', capacity: -5)
+      expect(venue).not_to be_valid
+      expect(venue.errors[:capacity]).to include('must be greater than 0')
     end
   end
 end

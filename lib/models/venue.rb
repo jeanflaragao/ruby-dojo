@@ -1,31 +1,10 @@
-# frozen_string_literal: true
-
-require_relative '../serializable'
-
-class Venue
-  include Serializable
-
-  serializable_attributes :name, :address, :capacity
-
-  attr_reader :name, :address, :capacity
-
-  def initialize(name:, address:, capacity:)
-    validate_required_fields(name: name, capacity: capacity)
-
-    @name = name
-    @address = address
-    @capacity = capacity
-  end
-
-  def to_s
-    "Venue: #{name} at #{address} (Capacity: #{capacity})"
-  end
-
-  private
-
-  def validate_required_fields(name:, capacity:)
-    raise ArgumentError, 'name is required' if name.nil? || name.empty?
-    raise ArgumentError, 'name must be at least 3 characters long' if name.length < 3
-    raise ArgumentError, 'capacity is required' if capacity.nil?
-  end
+require_relative 'application_record'
+class Venue < ApplicationRecord
+  # Associations
+  has_many :events
+  
+  # Validations
+  validates :name, presence: true, length: { minimum: 2, maximum: 100 }
+  validates :address, presence: true
+  validates :capacity, presence: true, numericality: { greater_than: 0 }
 end
