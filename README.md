@@ -61,24 +61,24 @@ make shell
 
 ## Available Commands
 
-| Command                    | Description                              |
-| -------------------------- | ---------------------------------------- |
-| `make build`               | Build the Docker image                   |
-| `make shell`               | Start an interactive shell               |
-| `make test`                | Run the full RSpec test suite            |
-| `make demo`                | Run the Day 1 demo                       |
-| `make demo-collections`    | Run the Day 2 collections tutorial       |
-| `make demo-repository`     | Run the Day 2 repository demo            |
-| `make demo-modules`        | Run the Day 3 modules tutorial           |
-| `make demo-method-lookup`  | Run the Day 3 method lookup demo         |
-| `make demo-errors`         | Run the Day 4 error handling tutorial    |
-| `make demo-booking`        | Run the Day 4 booking service demo       |
-| `make tutorial-day-5`      | Run the Day 5 value objects tutorial     |
-| `make demo-day-5`          | Run the Day 5 demo                       |
-| `make coverage`            | Open the SimpleCov coverage report       |
-| `make lint`                | Run RuboCop linter                       |
-| `make format`              | Auto-fix RuboCop offenses                |
-| `make clean`               | Remove coverage and temp files           |
+| Command                   | Description                           |
+| ------------------------- | ------------------------------------- |
+| `make build`              | Build the Docker image                |
+| `make shell`              | Start an interactive shell            |
+| `make test`               | Run the full RSpec test suite         |
+| `make demo`               | Run the Day 1 demo                    |
+| `make demo-collections`   | Run the Day 2 collections tutorial    |
+| `make demo-repository`    | Run the Day 2 repository demo         |
+| `make demo-modules`       | Run the Day 3 modules tutorial        |
+| `make demo-method-lookup` | Run the Day 3 method lookup demo      |
+| `make demo-errors`        | Run the Day 4 error handling tutorial |
+| `make demo-booking`       | Run the Day 4 booking service demo    |
+| `make tutorial-day-5`     | Run the Day 5 value objects tutorial  |
+| `make demo-day-5`         | Run the Day 5 demo                    |
+| `make coverage`           | Open the SimpleCov coverage report    |
+| `make lint`               | Run RuboCop linter                    |
+| `make format`             | Auto-fix RuboCop offenses             |
+| `make clean`              | Remove coverage and temp files        |
 
 ## Running Tests
 
