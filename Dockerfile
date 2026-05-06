@@ -13,7 +13,8 @@ RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
     build-essential \
     git \
-    pkg-config && \
+    pkg-config \
+    libyaml-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
