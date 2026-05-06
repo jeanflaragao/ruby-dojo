@@ -9,9 +9,14 @@ end
 
 require 'database_cleaner/active_record'
 
-# Load models
+# 1. Load ApplicationRecord first (since other models inherit from it)
 require_relative '../lib/models/application_record'
-Dir[File.join(__dir__, '..', 'lib', 'models', '**', '*.rb')].each { |f| require f }
+
+# 2. Load all other Ruby files in the lib/ directory
+Dir[File.join(__dir__, '..', 'lib', '**', '*.rb')].each do |file|
+  # Skip application_record.rb since we already loaded it
+  require file unless file.end_with?('application_record.rb')
+end
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
