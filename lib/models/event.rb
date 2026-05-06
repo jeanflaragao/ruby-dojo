@@ -30,8 +30,13 @@ class Event < ApplicationRecord
   end
 
   def base_price=(money)
-    self.base_price_amount = money.amount
-    self.base_price_currency = money.currency
+    if money.nil?
+      self.base_price_amount = nil
+      self.base_price_currency = nil
+    else
+      self.base_price_amount = money.amount
+      self.base_price_currency = money.currency
+    end
   end
 
   # Business logic
