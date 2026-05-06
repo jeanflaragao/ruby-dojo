@@ -7,6 +7,8 @@ class Event < ApplicationRecord
   # Associations
   belongs_to :venue
 
+  has_many :bookings, dependent: :destroy
+
   # Validations
   validates :name, presence: true
   validates :description, presence: true
@@ -18,6 +20,9 @@ class Event < ApplicationRecord
 
   # Callbacks
   before_validation :set_available_seats, on: :create
+
+  scope :upcoming, -> { where('start_time > ?', Time.now) }
+  scope :available, -> { where('available_seats > 0') }
 
   # Value object wrapper for Money
   def base_price
