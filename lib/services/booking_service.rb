@@ -122,7 +122,7 @@ class BookingService < PaymentService
   end
 
   def booking_history(email)
-    Booking.where(email: email)
+    ::Booking.where(email: email)
   end
 
   private
@@ -176,15 +176,15 @@ class BookingService < PaymentService
     Result.failure("Reservation failed: #{e.message}")
   end
 
-  # Step 5: Create booking record
-  # WHY separate? In real system, this would save to database
   def create_booking(event, seats_reserved)
-    booking = Booking.create!(
+    booking = ::Booking.create!(
       event: event,
       seats_reserved: seats_reserved,
       total_price: calculate_price(seats_reserved),
       booking_id: generate_booking_id,
-      timestamp: Time.now
+      timestamp: Time.now,
+      email: 'guest@example.com',
+      confirmation_code: generate_booking_id 
     )
 
     Result.success(booking)
