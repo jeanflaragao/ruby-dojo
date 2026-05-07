@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require_relative '../mailers/booking_mailer'
 
 class BookingConfirmationJob
   include Sidekiq::Job

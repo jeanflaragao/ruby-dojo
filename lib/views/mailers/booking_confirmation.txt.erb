@@ -1,0 +1,22 @@
+BOOKING CONFIRMED!
+==================
+
+Dear Customer,
+
+Thank you for your booking! Your reservation has been confirmed.
+
+Confirmation Code: <%= booking.confirmation_code %>
+
+Booking Details:
+- Confirmation Code: <%= booking.confirmation_code %>
+- Seats Reserved: <%= booking.seats_reserved %>
+- Total Price: <%= booking.total_price_currency %> <%= sprintf('%.2f', booking.total_price_amount) %>
+- Email: <%= booking.email %>
+
+Please save this confirmation code. You'll need it to access your tickets.
+
+See you at the event!
+
+---
+This is an automated email. Please do not reply.
+© 2026 Ticketing System. All rights reserved.
