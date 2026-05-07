@@ -55,6 +55,7 @@ GEM
     date (3.5.1)
     diff-lcs (1.6.2)
     docile (1.4.1)
+    dotenv (3.2.0)
     drb (2.2.3)
     erb (6.0.4)
     erubi (1.13.1)
@@ -243,6 +244,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord (~> 7.1)
   database_cleaner-active_record (~> 2.1)
+  dotenv (~> 3.1)
   mail (~> 2.8)
   pry (~> 0.14)
   puma (~> 6.4)

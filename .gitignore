@@ -20,6 +20,7 @@ coverage/
 
 .env
 .env.local
+.env.*.local
 
 .vscode/
 .idea/
@@ -30,3 +31,21 @@ coverage/
 Thumbs.db
 
 *.log
+
+# Logs
+log/*.log
+tmp/
+
+# Coverage
+coverage/
+
+# Gems
+vendor/bundle/
+.bundle/
+
+# IDE
+.vscode/
+.idea/
+
+# Mac
+.DS_Store

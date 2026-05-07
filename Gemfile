@@ -23,6 +23,9 @@ gem 'redis', '~> 5.0'
 # Email (NEW!)
 gem 'mail', '~> 2.8'
 
+# Environment Variables
+gem 'dotenv', '~> 3.1'
+
 group :test do
   gem 'rspec', '~> 3.13'
   gem 'simplecov', '~> 0.22', require: false
