@@ -9,6 +9,7 @@ SimpleCov.start do
 end
 
 require 'database_cleaner/active_record'
+require 'sidekiq/testing'
 
 # 1. Load ApplicationRecord first (since other models inherit from it)
 require_relative '../lib/models/application_record'
@@ -51,5 +52,9 @@ RSpec.configure do |config|
     DatabaseCleaner.cleaning do
       example.run
     end
+  end
+
+  config.before(:each) do
+    Sidekiq::Job.clear_all
   end
 end
