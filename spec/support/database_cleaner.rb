@@ -1,11 +1,22 @@
-# Create support directory first if it doesn't exist
-# mkdir -p spec/support
+
+require 'database_cleaner/active_record'
 
 RSpec.configure do |config|
+  config.before(:suite) do
+    # Use :deletion instead of :truncation for SQLite3 compatibility
+    DatabaseCleaner.clean_with(:deletion)
+  end
+
   config.before(:each) do
-    # Clean in correct order (child -> parent)
-    Booking.delete_all if defined?(Booking)
-    Event.delete_all if defined?(Event)
-    Venue.delete_all if defined?(Venue)
+    # Transactions are much faster for individual tests
+    DatabaseCleaner.strategy = :transaction
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
   end
 end

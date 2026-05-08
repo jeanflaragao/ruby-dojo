@@ -22,7 +22,7 @@ RSpec.describe 'Events API', type: :api do
 
   describe 'GET /api/v1/events' do
     it 'returns all events' do
-      event1 = Event.create!(
+      Event.create!(
         name: 'RubyConf',
         description: 'Ruby conference',
         venue: venue,
@@ -32,7 +32,7 @@ RSpec.describe 'Events API', type: :api do
         base_price: Money.new(50, 'USD')
       )
 
-      event2 = Event.create!(
+      Event.create!(
         name: 'RailsConf',
         description: 'Rails conference',
         venue: venue,
@@ -42,7 +42,7 @@ RSpec.describe 'Events API', type: :api do
         base_price: Money.new(75, 'USD')
       )
 
-      get '/events'
+      get '/'
 
       expect(last_response.status).to eq(200)
       json = JSON.parse(last_response.body, symbolize_names: true)
@@ -52,7 +52,7 @@ RSpec.describe 'Events API', type: :api do
     end
 
     it 'returns empty array when no events exist' do
-      get '/events'
+      get '/'
 
       expect(last_response.status).to eq(200)
       json = JSON.parse(last_response.body, symbolize_names: true)
@@ -72,7 +72,7 @@ RSpec.describe 'Events API', type: :api do
         base_price: Money.new(50, 'USD')
       )
 
-      get "/events/#{event.id}"
+      get "/#{event.id}"
 
       expect(last_response.status).to eq(200)
       json = JSON.parse(last_response.body, symbolize_names: true)
@@ -82,7 +82,7 @@ RSpec.describe 'Events API', type: :api do
     end
 
     it 'returns 404 when event not found' do
-      get '/events/99999'
+      get '/99999'
 
       expect(last_response.status).to eq(404)
       json = JSON.parse(last_response.body, symbolize_names: true)
@@ -92,7 +92,7 @@ RSpec.describe 'Events API', type: :api do
 
   describe 'POST /api/v1/events' do
     it 'creates a new event' do
-      post '/events', {
+      post '/', {
         name: 'RubyConf',
         description: 'Ruby conference',
         venue_id: venue.id,
@@ -109,7 +109,7 @@ RSpec.describe 'Events API', type: :api do
     end
 
     it 'returns 422 when validation fails' do
-      post '/events', {
+      post '/', {
         name: '',  # Invalid!
         venue_id: venue.id
       }.to_json, { 'CONTENT_TYPE' => 'application/json' }
@@ -132,7 +132,7 @@ RSpec.describe 'Events API', type: :api do
         base_price: Money.new(50, 'USD')
       )
 
-      put "/events/#{event.id}", {
+      put "/#{event.id}", {
         name: 'RubyConf 2026'
       }.to_json, { 'CONTENT_TYPE' => 'application/json' }
 
@@ -155,7 +155,7 @@ RSpec.describe 'Events API', type: :api do
         base_price: Money.new(50, 'USD')
       )
 
-      delete "/events/#{event.id}"
+      delete "/#{event.id}"
 
       expect(last_response.status).to eq(204)
       expect(last_response.body).to be_empty

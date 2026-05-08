@@ -26,7 +26,7 @@ RSpec.describe 'Venues API', type: :api do
         capacity: 200
       )
 
-      get '/venues'
+      get '/'
 
       expect(last_response.status).to eq(200)
       json = JSON.parse(last_response.body, symbolize_names: true)
@@ -39,7 +39,7 @@ RSpec.describe 'Venues API', type: :api do
     end
 
     it 'returns empty array when no venues exist' do
-      get '/venues'
+      get '/'
 
       expect(last_response.status).to eq(200)
       json = JSON.parse(last_response.body, symbolize_names: true)
@@ -55,7 +55,7 @@ RSpec.describe 'Venues API', type: :api do
         capacity: 500
       )
 
-      get "/venues/#{venue.id}"
+      get "/#{venue.id}"
 
       expect(last_response.status).to eq(200)
       json = JSON.parse(last_response.body, symbolize_names: true)
@@ -82,7 +82,7 @@ RSpec.describe 'Venues API', type: :api do
         base_price: Money.new(50, 'USD')
       )
 
-      get "/venues/#{venue.id}"
+      get "/#{venue.id}"
 
       expect(last_response.status).to eq(200)
       json = JSON.parse(last_response.body, symbolize_names: true)
@@ -92,7 +92,7 @@ RSpec.describe 'Venues API', type: :api do
     end
 
     it 'returns 404 when venue not found' do
-      get '/venues/99999'
+      get '/99999'
 
       expect(last_response.status).to eq(404)
       json = JSON.parse(last_response.body, symbolize_names: true)
@@ -102,7 +102,7 @@ RSpec.describe 'Venues API', type: :api do
 
   describe 'POST /api/v1/venues' do
     it 'creates a new venue' do
-      post '/venues', {
+      post '/', {
         name: 'New Venue',
         address: '789 Pine St',
         capacity: 300
@@ -117,7 +117,7 @@ RSpec.describe 'Venues API', type: :api do
     end
 
     it 'returns 422 when validation fails' do
-      post '/venues', {
+      post '/', {
         name: '',  # Invalid - required
         address: '123 St',
         capacity: 100
@@ -130,7 +130,7 @@ RSpec.describe 'Venues API', type: :api do
     end
 
     it 'returns 422 when capacity is invalid' do
-      post '/venues', {
+      post '/', {
         name: 'Test Venue',
         address: '123 St',
         capacity: -10  # Invalid - must be positive
@@ -142,7 +142,7 @@ RSpec.describe 'Venues API', type: :api do
     end
 
     it 'returns 400 when JSON is invalid' do
-      post '/venues', 'not valid json', { 'CONTENT_TYPE' => 'application/json' }
+      post '/', 'not valid json', { 'CONTENT_TYPE' => 'application/json' }
 
       expect(last_response.status).to eq(400)
       json = JSON.parse(last_response.body, symbolize_names: true)
@@ -158,7 +158,7 @@ RSpec.describe 'Venues API', type: :api do
         capacity: 500
       )
 
-      put "/venues/#{venue.id}", {
+      put "/#{venue.id}", {
         name: 'Updated Name',
         address: '456 New St',
         capacity: 600
@@ -180,7 +180,7 @@ RSpec.describe 'Venues API', type: :api do
         capacity: 500
       )
 
-      put "/venues/#{venue.id}", {
+      put "/#{venue.id}", {
         name: 'New Name'
         # address and capacity not provided
       }.to_json, { 'CONTENT_TYPE' => 'application/json' }
@@ -193,7 +193,7 @@ RSpec.describe 'Venues API', type: :api do
     end
 
     it 'returns 404 when venue not found' do
-      put '/venues/99999', {
+      put '/99999', {
         name: 'Updated'
       }.to_json, { 'CONTENT_TYPE' => 'application/json' }
 
@@ -207,7 +207,7 @@ RSpec.describe 'Venues API', type: :api do
         capacity: 500
       )
 
-      put "/venues/#{venue.id}", {
+      put "/#{venue.id}", {
         name: '',  # Invalid
         capacity: -5  # Invalid
       }.to_json, { 'CONTENT_TYPE' => 'application/json' }
@@ -224,7 +224,7 @@ RSpec.describe 'Venues API', type: :api do
         capacity: 500
       )
 
-      delete "/venues/#{venue.id}"
+      delete "/#{venue.id}"
 
       expect(last_response.status).to eq(204)
       expect(last_response.body).to be_empty
@@ -232,7 +232,7 @@ RSpec.describe 'Venues API', type: :api do
     end
 
     it 'returns 404 when venue not found' do
-      delete '/venues/99999'
+      delete '/99999'
 
       expect(last_response.status).to eq(404)
     end

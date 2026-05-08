@@ -39,4 +39,6 @@ group :development, :test do
   gem 'pry', '~> 0.14'
   gem 'rubocop', '~> 1.60', require: false
   gem 'rubocop-rspec', '~> 3.0', require: false
+  gem 'factory_bot'
+  gem 'faker', '~> 3.8'
 end
