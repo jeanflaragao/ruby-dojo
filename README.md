@@ -12,7 +12,7 @@ A hands-on Ruby learning workshop focused on object-oriented programming, TDD, a
 - ✅ **Day 6** — **Morning:** Big refactoring (project structure cleanup) | **Afternoon:** Continued development
 - ✅ **Day 7** — Database integration (ActiveRecord basics, migrations, associations)
 - ✅ **Day 8** — API basics (Serializers, JSON responses, versioning)
-- **Day 9** — Background jobs (Sidekiq, async processing, email notifications)
+- ✅ **Day 9** — Background jobs (Sidekiq, Redis, cron scheduling, email notifications)
 - **Day 10** — Integration testing & deployment prep
 
 **Future Topics:**
@@ -34,6 +34,8 @@ lib/
   value_objects/  # Value objects (Money, DateRange, Address, …)
   concerns/       # Shared modules (Timestampable, Validatable)
   errors/         # Custom error classes
+  jobs/           # Background jobs (BookingConfirmationJob, DailyReportJob, EventReminderJob)
+  mailers/        # Action mailers (BookingMailer)
   api/            # Sinatra API application and controllers
 spec/             # RSpec test suite
 db/
@@ -96,6 +98,10 @@ Coverage reports are generated with [SimpleCov](https://github.com/simplecov-rub
 - **SQLite3** — development and test database
 - **Sinatra** 4.0 — lightweight web framework
 - **Puma** 6 — web server
+- **Sidekiq** 7.2 — background job processing
+- **Redis** 5 — job queue backend
+- **sidekiq-cron** — cron-style scheduled jobs
+- **Mail** 2.8 — email delivery
 - **SimpleCov** — code coverage
 - **RuboCop** + **rubocop-rspec** — linting and formatting
 - **DatabaseCleaner** — test database isolation
