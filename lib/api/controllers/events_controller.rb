@@ -38,6 +38,8 @@ module API
         base_price: base_price
       )
 
+      EventReminderJob.perform_at(event.start_time - 24.hours, event.id)
+      
       status 201
       json EventSerializer.new(event).as_json(include_venue: true)
     end
