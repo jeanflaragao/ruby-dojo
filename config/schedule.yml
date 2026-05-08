@@ -1,0 +1,14 @@
+daily_report:
+  cron: "0 9 * * *" # Every day at 9am
+  class: "DailyReportJob"
+  queue: low
+
+weekly_cleanup:
+  cron: "0 0 * * 0" # Every Sunday at midnight
+  class: "WeeklyCleanupJob"
+  queue: low
+
+hourly_sync:
+  cron: "0 * * * *" # Every hour
+  class: "HourlySyncJob"
+  queue: default

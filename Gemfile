@@ -19,6 +19,7 @@ gem 'rack', '~> 3.0'
 # Background Jobs (NEW!)
 gem 'sidekiq', '~> 7.2'
 gem 'redis', '~> 5.0'
+gem 'sidekiq-cron'
 
 # Email (NEW!)
 gem 'mail', '~> 2.8'
